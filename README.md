@@ -30,6 +30,19 @@ npm run dev
 
 Open the URL printed by Vite, typically `http://localhost:5173`.
 
+## PostgreSQL
+
+Copy `server/.env.example` to `server/.env` and set `DATABASE_URL` to the direct connection URL from your Neon development database. Use `sslmode=verify-full` to explicitly verify the server certificate and hostname. Keep any other URL parameters supplied by Neon.
+
+From `server/`, generate Prisma Client and verify the connection:
+
+```sh
+npm run db:generate
+npm run db:check
+```
+
+The check runs `SELECT 1`. The existing `/health` route reports whether Express is running.
+
 ## Build
 
 Run `npm run build` in each package directory. To run the compiled API, use `npm start` from `server/`.
