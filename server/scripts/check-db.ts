@@ -1,7 +1,7 @@
-import { createPrismaClient } from '../src/database/db.js';
+import { getPrismaClient } from '../src/database/db.js';
 
 try {
-  const prisma = createPrismaClient();
+  const prisma = getPrismaClient();
 
   try {
     await prisma.$queryRaw`SELECT 1`;
