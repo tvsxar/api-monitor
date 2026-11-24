@@ -1,4 +1,4 @@
-import { createPrismaClient } from '../src/db.js';
+import { createPrismaClient } from '../src/database/db.js';
 
 try {
   const prisma = createPrismaClient();
