@@ -1,8 +1,13 @@
 import type { ErrorRequestHandler } from 'express';
+import { AppError } from '../errors/appError.js';
 
 export const handleProjectError: ErrorRequestHandler = (err: unknown, _req, res, next) => {
   if (res.headersSent) {
     next(err);
+    return;
+  }
+  if (err instanceof AppError) {
+    res.status(err.statusCode).json({ message: err.message });
     return;
   }
   const status = err instanceof Error && 'status' in err ? err.status : undefined;

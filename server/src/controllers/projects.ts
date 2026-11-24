@@ -14,12 +14,8 @@ export async function createProjectController(req: Request, res: Response<unknow
     return;
   }
 
-  const result = await createProject(res.locals.session.user.id, input.data);
-  if (!result.project) {
-    res.status(409).json({ message: `You can create up to ${result.limit} projects.` });
-    return;
-  }
-  res.status(201).json(result.project);
+  const project = await createProject(res.locals.session.user.id, input.data);
+  res.status(201).json(project);
 }
 
 export async function updateProjectController(
@@ -33,9 +29,5 @@ export async function updateProjectController(
   }
 
   const project = await updateProject(res.locals.session.user.id, req.params.projectId, input.data);
-  if (!project) {
-    res.status(404).json({ message: 'Project not found.' });
-    return;
-  }
   res.json(project);
 }

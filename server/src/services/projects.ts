@@ -1,3 +1,4 @@
+import { ProjectLimitError, ProjectNotFoundError } from '../errors/projectErrors.js';
 import {
   findProjectsByOwner,
   updateProjectByOwner,
@@ -19,12 +20,16 @@ export function createProject(ownerId: string, data: ProjectData) {
   return withProjectCreationTransaction(ownerId, async ({ countProjects, insertProject }) => {
     const count = await countProjects();
     if (count >= maxProjects) {
-      return { limit: maxProjects } as const;
+      throw new ProjectLimitError(maxProjects);
     }
-    return { project: await insertProject(data) } as const;
+    return insertProject(data);
   });
 }
 
-export function updateProject(ownerId: string, id: string, data: ProjectData) {
-  return updateProjectByOwner(ownerId, id, data);
+export async function updateProject(ownerId: string, id: string, data: ProjectData) {
+  const project = await updateProjectByOwner(ownerId, id, data);
+  if (!project) {
+    throw new ProjectNotFoundError();
+  }
+  return project;
 }
