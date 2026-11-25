@@ -1,18 +1,9 @@
 import { getPrismaClient } from '../database/db.js';
 import { Prisma } from '../generated/prisma/client.js';
-
-export type ProjectData = Pick<Prisma.ProjectCreateInput, 'name' | 'baseUrl'>;
+import type { ProjectData } from '../types/project.js';
 
 const prisma = getPrismaClient();
-const maxTransactionAttempts = 5;
 const projectFields = { id: true, name: true, baseUrl: true, createdAt: true, updatedAt: true } as const;
-
-type ProjectRecord = Prisma.ProjectGetPayload<{ select: typeof projectFields }>;
-
-type ProjectCreationQueries = {
-  countProjects: () => Promise<number>;
-  insertProject: (data: ProjectData) => Promise<ProjectRecord>;
-};
 
 export function findProjectsByOwner(ownerId: string) {
   return prisma.project.findMany({
@@ -22,39 +13,28 @@ export function findProjectsByOwner(ownerId: string) {
   });
 }
 
-export async function withProjectCreationTransaction<T>(
-  ownerId: string,
-  run: (queries: ProjectCreationQueries) => Promise<T>,
-): Promise<T> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await prisma.$transaction(
-        (tx) => run({
-          countProjects: () => tx.project.count({ where: { ownerId } }),
-          insertProject: (data) => tx.project.create({
-            data: { ...data, ownerId },
-            select: projectFields,
-          }),
-        }),
-        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
-      );
-    } catch (err) {
-      if (!isPrismaError(err, 'P2034') || attempt === maxTransactionAttempts) {
-        throw err;
-      }
-    }
-  }
+export function createProjectWithinLimit(ownerId: string, data: ProjectData, limit: number) {
+  return prisma.$transaction(async (tx) => {
+    const [owner] = await tx.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "user"
+      WHERE "id" = ${ownerId}
+      FOR UPDATE
+    `;
+    if (!owner) return { outcome: 'ownerNotFound' } as const;
+
+    const count = await tx.project.count({ where: { ownerId } });
+    if (count >= limit) return { outcome: 'limitReached' } as const;
+
+    const project = await tx.project.create({ data: { ...data, ownerId }, select: projectFields });
+    return { outcome: 'created', project } as const;
+  });
 }
 
 export async function updateProjectByOwner(ownerId: string, id: string, data: ProjectData) {
   try {
     return await prisma.project.update({ where: { id, ownerId }, data, select: projectFields });
   } catch (err) {
-    if (isPrismaError(err, 'P2025')) return null;
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') return null;
     throw err;
   }
-}
-
-function isPrismaError(err: unknown, code: string) {
-  return err instanceof Prisma.PrismaClientKnownRequestError && err.code === code;
 }
