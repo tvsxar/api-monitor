@@ -8,8 +8,7 @@ export function AppRouter() {
 
   return (
     <BrowserRouter>
-      <main className={session ? 'm-2' : undefined}>
-        {session && <h1>PulseKit</h1>}
+      <main>
         {isPending ? (
           <div className="grid min-h-dvh place-items-center bg-zinc-950 font-sans text-zinc-300 scheme-dark">
             <p role="status">Checking your session…</p>
