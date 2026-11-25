@@ -8,15 +8,17 @@ export function AppRouter() {
 
   return (
     <BrowserRouter>
-      <main>
-        <h1>PulseKit</h1>
+      <main className={session ? 'm-2' : undefined}>
+        {session && <h1>PulseKit</h1>}
         {isPending ? (
-          <p role="status">Checking your session…</p>
+          <div className="grid min-h-dvh place-items-center bg-zinc-950 font-sans text-zinc-300 scheme-dark">
+            <p role="status">Checking your session…</p>
+          </div>
         ) : error ? (
-          <>
+          <div className="flex min-h-dvh flex-col items-center justify-center bg-zinc-950 px-6 font-sans text-zinc-300 scheme-dark">
             <p role="alert">Could not check your session.</p>
-            <button type="button" onClick={() => void refetch()}>Retry</button>
-          </>
+            <button type="button" className="cursor-pointer rounded-md border border-solid border-zinc-700 bg-zinc-900 px-4 py-2 text-green-200" onClick={() => void refetch()}>Retry</button>
+          </div>
         ) : (
           <Routes>
             <Route path="/login" element={session ? <Navigate to="/projects" replace /> : <LoginPage />} />
