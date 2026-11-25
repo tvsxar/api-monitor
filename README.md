@@ -36,6 +36,8 @@ Copy `server/.env.example` to `server/.env` and set `DATABASE_URL` to the direct
 
 Keep `BETTER_AUTH_URL` set to `http://127.0.0.1:5173` for local development. Generate a value for `BETTER_AUTH_SECRET` with `openssl rand -base64 32` and store it in `server/.env`.
 
+Set `CLIENT_ORIGIN` to the frontend origin, for example `http://127.0.0.1:5173` locally. In production it is required and should be the frontend's public HTTPS origin. Project and endpoint write requests must send that exact value in the `Origin` header.
+
 From `server/`, apply the checked-in migration to your development database, generate Prisma Client and verify the connection:
 
 ```sh

@@ -1,9 +1,14 @@
 import type { Request, Response } from 'express';
 import { getSessionUserId } from '../middleware/requireSession.js';
-import { createProject, listProjects, updateProject } from '../services/projects.js';
+import { createProject, getProject, listProjects, updateProject } from '../services/projects.js';
 
 export async function listProjectsController(_req: Request, res: Response) {
   res.json(await listProjects(getSessionUserId(res)));
+}
+
+export async function getProjectController(req: Request, res: Response) {
+  const project = await getProject(getSessionUserId(res), req.params.projectId as string);
+  res.json(project);
 }
 
 export async function createProjectController(req: Request, res: Response) {

@@ -13,6 +13,29 @@ export function findProjectsByOwner(ownerId: string) {
   });
 }
 
+export function findProjectWithEndpoints(ownerId: string, projectId: string) {
+  return prisma.project.findUnique({
+    where: { id: projectId, ownerId },
+    select: {
+      ...projectFields,
+      endpoints: {
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        select: {
+          id: true,
+          projectId: true,
+          name: true,
+          path: true,
+          intervalSeconds: true,
+          timeoutMs: true,
+          expectedStatus: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+}
+
 export function createProjectWithinLimit(ownerId: string, data: ProjectData, limit: number) {
   return prisma.$transaction(async (tx) => {
     const [owner] = await tx.$queryRaw<{ id: string }[]>`

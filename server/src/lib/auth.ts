@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from '@better-auth/prisma-adapter';
+import { clientOrigin } from '../config/clientOrigin.js';
 import { getPrismaClient } from '../database/db.js';
 
 const { BETTER_AUTH_SECRET, BETTER_AUTH_URL } = process.env;
@@ -10,6 +11,7 @@ if (!BETTER_AUTH_URL || !BETTER_AUTH_SECRET || BETTER_AUTH_SECRET.length < 32) {
 
 export const auth = betterAuth({
   baseURL: BETTER_AUTH_URL,
+  trustedOrigins: [clientOrigin],
   secret: BETTER_AUTH_SECRET,
   database: prismaAdapter(getPrismaClient(), {
     provider: 'postgresql',

@@ -3,6 +3,7 @@ import { ProjectLimitError, ProjectNotFoundError } from '../errors/projectErrors
 import {
   createProjectWithinLimit,
   findProjectsByOwner,
+  findProjectWithEndpoints,
   updateProjectByOwner,
 } from '../repositories/projects.js';
 import type { ProjectData } from '../types/project.js';
@@ -15,6 +16,12 @@ if (!Number.isSafeInteger(maxProjects) || maxProjects < 1) {
 
 export function listProjects(ownerId: string) {
   return findProjectsByOwner(ownerId);
+}
+
+export async function getProject(ownerId: string, projectId: string) {
+  const project = await findProjectWithEndpoints(ownerId, projectId);
+  if (!project) throw new ProjectNotFoundError();
+  return project;
 }
 
 export async function createProject(ownerId: string, data: ProjectData) {
