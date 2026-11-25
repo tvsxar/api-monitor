@@ -48,6 +48,8 @@ The check runs `SELECT 1`. The `/api/health` route reports whether Express is ru
 
 The client supports email and password sign-up, sign-in and sign-out. Better Auth manages the session cookie and provides `GET /api/auth/get-session`.
 
+Signed-in users can list, create and edit their own projects. Each project requires a name and an HTTP or HTTPS origin, such as `https://api.example.com`. The default limit is five projects per user and can be set with `MAX_PROJECTS_PER_USER`.
+
 ## Database migrations
 
 For a new schema change, update `server/prisma/schema.prisma` and run `npx prisma migrate dev --name describe_change` from `server/` against your development database. Prisma uses a shadow database to check the migration history and puts the new SQL in a timestamped folder under `prisma/migrations/`.
